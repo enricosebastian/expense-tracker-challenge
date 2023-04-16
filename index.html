@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<title>Mini Challenge 2: Expense Tracker</title>
+		<link href="https://fonts.googleapis.com/css?family=Assistant:400,700&display=swap" rel="stylesheet">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+		<style>
+			body {
+	            width: 600px;
+	            margin: 0 auto;
+	            font-family: 'Assistant', sans-serif;
+	            font-size: 1em;
+	        }
+
+	        table {
+	        	width: 100%;
+	        	background-color: #eee;
+	        	border-radius: 10px;
+	        	padding: 4px;
+	        }
+
+			td {
+				padding: 0px 8px;
+				height: 30px;
+			}
+
+			input {
+				width: 100%;
+				border: 1px solid #ddd;
+				border-radius: 4px;
+				padding-left: 4px;
+			}
+
+			select {
+				width: 100%;
+			}
+
+			button {
+				background-color: cornflowerblue;
+	            color: white;
+	            padding: 7px 15px;
+	            display: inline-block;
+	            border-radius: 3px; 
+	            border: 1px solid cornflowerblue;
+	            text-align: center;	
+	            text-transform: uppercase;
+	            margin: 8px auto;
+	            width: 100px;
+	            font-size: 1em;
+			}
+
+			p {
+				margin: 0;
+			}
+
+			#form {
+				margin-top: 20px;
+			}
+
+			#header {
+				margin-bottom: 0.5em;
+			}
+
+			#controls {
+				display: flex;
+				flex-flow: row wrap;
+				justify-content: space-between;
+				align-items: flex-end;
+				margin: 8px;
+			}
+
+
+			/** 
+			 * These are the CSS classes to be used for the
+			 * styling of the expense item list.
+			 */
+
+			.food {
+				border-top: 10px solid #E69F00;
+			}
+
+			.transpo {
+				border-top: 10px solid #56B4E9;
+			}
+
+			.bills {
+				border-top: 10px solid #009E73;
+			}
+
+			.expenseItem {
+				min-height: 30px;
+				background-color: #eee;
+				display: flex;
+				padding: 8px;
+				margin: 8px;
+				align-items: center;
+			}
+
+			.datecol {
+				width: 20%;
+			}
+
+			.itemcol {
+				width: 60%;
+			}
+
+			.amountcol {
+				width: 20%;
+				text-align: right;
+				font-weight: 700;
+			}
+
+			/** This is to style the error message **/
+			#error {
+				margin: 0;
+				padding: 0;
+				color: #B00000;
+				font-weight: 700;
+			}
+
+		</style>
+		<!-- IMPORT JQUERY (from CDN or download it) -->
+		<script type="text/javascript">
+			// Insert your javascript/jquery code here
+			
+			// This will store all the expenses locally
+			var expenses = [];
+			var sum = 0;
+
+			var expenseData = []
+
+			$(document).ready(function() {
+
+				// This creates a date object with an initialized value of the date today
+				var today = new Date();
+				var formattedDate = today.getFullYear().toString() + '-' + (today.getMonth() + 1).toString().padStart(2, 0) + '-' + today.getDate().toString().padStart(2, 0);
+
+				// Set the formattedDate value to the date input field's value
+				$('#date').val(formattedDate);
+
+				// Place all functions and validations here
+				var date, category, amount, description;
+
+				function ExpenseData(date, category, amount, description) {
+					this.date = date;
+					this.category = category;
+					this.amount = amount;
+					this.description = description;
+				}
+
+				function isEmpty(str){
+					return str === null || str.match(/^\s*$/) !== null;
+				}
+
+				$('#submit').on("click",function() {
+					date = $("#date").val();
+					category = $("#category").val();
+					description = $("#item").val();
+					amount = $("#amount").val();
+					
+					if(isEmpty(description) && isEmpty(amount)) {
+						$('#item').css('border-color','#B00000');
+						$('#amount').css('border-color','#B00000');
+						$('#error').text('Required entries!');
+						end();
+					} else if (isEmpty(description) || isEmpty(amount)) {
+						if(isEmpty(description)) {
+							$('#item').css('border-color','#B00000');
+							$('#amount').css('border-color','#DDDDDD');
+							$('#error').text('Please enter a description for this expense.');
+						} else {
+							$('#amount').css('border-color','#B00000');
+							$('#item').css('border-color','#DDDDDD');
+							$('#error').text('Please enter an amount.');
+						}
+						end();
+					}
+
+					expenseData[$('.expenseItem').length] = new ExpenseData(date, category, amount, description);
+
+
+					$("#date").val(formattedDate);
+					$("#category").val('food');
+					$("#item").val('');
+					$("#amount").val('');
+
+					//in case they entered empty initially
+					$('#item').css('border-color','#DDDDDD'); //.removeProperty doesn't work for some reason
+					$('#amount').css('border-color','#DDDDDD');
+					$('#error').text('');
+
+					
+					var dateColDiv = document.createElement('div');
+					dateColDiv.setAttribute("class","datecol");
+					dateColDiv.append(date);
+
+					var itemColDiv = document.createElement('div');
+					itemColDiv.setAttribute("class","itemcol");
+					itemColDiv.append(description);
+
+					var amountColDiv = document.createElement('div');
+					amountColDiv.setAttribute("class","amountcol");
+
+					amountColDiv.append(parseFloat(amount).toFixed(2));
+
+					var expenseItemDiv = document.createElement('div')
+					if(category=='food') {
+						expenseItemDiv.setAttribute("class","expenseItem food");
+					} else if(category=='transpo') {
+						expenseItemDiv.setAttribute("class","expenseItem transpo");
+					} else if(category=='bills') {
+						expenseItemDiv.setAttribute("class","expenseItem bills");
+					}
+
+					expenseItemDiv.append(dateColDiv);
+					expenseItemDiv.append(itemColDiv);
+					expenseItemDiv.append(amountColDiv);
+					
+
+					$('#list').append(expenseItemDiv);	
+
+
+				});
+
+				var filterVal
+				
+				$('#filter').on('change', function() {
+					$(".expenseItem").show();
+					filterVal = this.value;
+					if(filterVal=='food') {
+						$(".transpo").hide();
+						$(".bills").hide();
+					} else if(filterVal=='transpo') {
+						$(".food").hide();
+						$(".bills").hide();
+					} else if(filterVal=='bills') {
+						$(".transpo").hide();
+						$(".food").hide();
+					}
+				});
+
+				window.setInterval(function() {
+					var salaries = [];
+
+					filterVal = $('#filter').val();
+
+					if(filterVal=='all') {
+						for(var i=0; i<expenseData.length; i++) {
+							salaries.push(expenseData[i].amount);
+						}
+					} else {
+						for(var i=0; i<expenseData.length; i++) {
+							if(expenseData[i].category==filterVal) {
+								salaries.push(expenseData[i].amount);
+							}
+						}
+
+					}
+					//this is the only solution i can think of
+
+					sum = 0;
+					for (var i in salaries) {
+						sum += parseFloat(salaries[i]);
+					}
+					$('#total').text(sum.toFixed(2));
+				});
+			})
+
+		</script>
+	</head>
+	
+	<body>
+		<div>
+			<h3>CCAPDEV - Mini Challenge 2</h3>
+			<p>Enrico Sebastian Salazar</p>
+		</div>
+		<div id="form">
+			
+			<table>
+				<tr>
+					<td colspan="4" style="border-bottom: 2px solid #aaa"><strong>Log Expense</strong>
+					</td>
+				<tr>
+				<tr>
+					<td><label for="date">Date</label></td>
+					<td><input type="date" name="date" id="date"></td>
+
+					<td><label for="category">Category</label></td>
+					<td>
+						<select id="category">
+							<option value="food" selected>Food</option>
+							<option value="transpo">Transportation</option>
+							<option value="bills">Bills</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td><label for="item">Description</label></td>
+					<td><input type="text" name="item" id="item"></td>
+
+					<td><label for="amount">Amount</label></td>
+					<td><input type="number" name="amount" id="amount"></td>
+				</tr>
+				<tr>
+					<td colspan="4"><p id="error"></p></td>
+				</tr>
+				<tr>
+					<td colspan="4">
+						<center><button id="submit">Submit</button></center>
+					</td>
+				</tr>
+			</table>
+		</div>
+
+		<div id="controls">
+			<div>
+				<h2 id="header">Expenses</h2>
+				<p>Total: <span id="total">0.00</span></p>
+			</div>
+
+			<div>
+				<p><strong>Filter</strong></p>
+				<select id="filter">
+					<option value="all" selected>All</option>
+					<option value="food">Food</option>
+					<option value="transpo">Transportation</option>
+					<option value="bills">Bills</option>
+				</select>
+			</div>
+		</div>
+
+		<div id="container">
+			<div id="list">
+			</div>
+		</div>
+	</body>
+</html>
