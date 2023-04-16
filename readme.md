@@ -4,8 +4,6 @@
 
 This is a repo of a challenge I did as part of my application. We needed to create a super quick and simple expense tracker.
 
-<br/><br/>
-
 Visit actual rendered site [here](https://enricosebastian.github.io/expense-tracker-challenge/)!
 
 ## How to install locally
